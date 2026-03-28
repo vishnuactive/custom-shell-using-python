@@ -2,6 +2,7 @@ from commandparser.command import Command
 from commandparser.tokenizer import Tokenizer
 from commandexecutor.executor import Executor
 from builtin_commands.register import is_builtin_command,execute_builtin_command
+from commandexecutor.executor_pipe import PipeExecution
 import os
 
 class Shell:
@@ -9,6 +10,7 @@ class Shell:
         self.running = True
         self.tokenizer = Tokenizer()
         self.executor = Executor()
+        self.pipe_executor = PipeExecution()
 
     def display_prompt(self):
         return f"{os.getcwd()}>"
@@ -21,11 +23,17 @@ class Shell:
                 return
             else:
                 tokens = self.tokenizer.tokenize(user_input)
-                command = Command.from_tokens(tokens)
-                if is_builtin_command(command):
-                    execute_builtin_command(command)
+                piped_commmands = self.tokenizer.split_pipe_tokens(tokens)
+                commands = []
+                for command in piped_commmands:
+                    commands.append(Command.from_tokens(command))
+                if len(commands) == 1 and is_builtin_command(commands[0]):
+                    execute_builtin_command(commands[0])
                 else:
-                    self.executor.execute(command)
+                    if len(commands) == 1:
+                        self.executor.execute(commands[0])
+                    else:
+                        self.pipe_executor.execute_pipe_commands(commands)
         except Exception as ex:
             print(f"Error : {str(ex)}")
     
