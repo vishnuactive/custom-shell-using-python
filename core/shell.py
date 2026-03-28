@@ -13,8 +13,7 @@ class Shell:
         return f"{os.getcwd()}>"
     
     def receive_user_input(self):
-        return input(self.display_prompt())
-    
+        return input(self.display_prompt())    
     def handle_user_input(self,user_input):
         try:
             if not user_input:
@@ -31,5 +30,10 @@ class Shell:
             print(f"Error : {str(ex)}")
     
     def run(self):
-        while self.running:
-            self.handle_user_input(self.receive_user_input())
+        try:
+            while self.running:
+                self.handle_user_input(self.receive_user_input())
+        except EOFError:
+            print()
+        except KeyboardInterrupt:
+            print("Interrupted by user")
