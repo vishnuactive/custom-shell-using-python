@@ -1,6 +1,7 @@
 from commandparser.command import Command
 from commandparser.tokenizer import Tokenizer
 from commandexecutor.executor import Executor
+from builtin_commands.register import is_builtin_command,execute_builtin_command
 import os
 
 class Shell:
@@ -21,11 +22,10 @@ class Shell:
             else:
                 tokens = self.tokenizer.tokenize(user_input)
                 command = Command.from_tokens(tokens)
-                if command.name.lower() == 'exit':
-                    self.running = False
-                    print("Bye")
-                    return
-                self.executor.execute(command)
+                if is_builtin_command(command):
+                    execute_builtin_command(command)
+                else:
+                    self.executor.execute(command)
         except Exception as ex:
             print(f"Error : {str(ex)}")
     
