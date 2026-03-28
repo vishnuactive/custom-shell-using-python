@@ -1,10 +1,13 @@
 from commandparser.command import Command
 from commandparser.tokenizer import Tokenizer
+from commandexecutor.executor import Executor
 import os
+
 class Shell:
     def __init__(self):
         self.running = True
         self.tokenizer = Tokenizer()
+        self.executor = Executor()
 
     def display_prompt(self):
         return f"{os.getcwd()}>"
@@ -19,10 +22,11 @@ class Shell:
             else:
                 tokens = self.tokenizer.tokenize(user_input)
                 command = Command.from_tokens(tokens)
-                print(command)
                 if command.name.lower() == 'exit':
                     self.running = False
                     print("Bye")
+                    return
+                self.executor.execute(command)
         except Exception as ex:
             print(f"Error : {str(ex)}")
     
